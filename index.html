@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小幫手｜薪資系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0f1923;--paper:#f5f0e8;--cream:#ede8dc;--green:#1a6b3a;--green-lt:#d4edda;--amber:#b35c00;--amber-lt:#fdebd0;--rule:#c8c0b0;--gray:#f3f0ea;--mono:'DM Mono',monospace;--serif:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.top-nav{background:var(--ink);padding:0 32px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;border-bottom:2px solid #888}
+.nav-brand{font-family:var(--serif);font-size:13px;color:white;font-weight:700;padding:13px 20px 13px 0;border-right:1px solid rgba(255,255,255,.15);margin-right:4px}
+.nav-link{padding:8px 14px;font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;border:1px solid #555;border-radius:2px;text-decoration:none;transition:all .2s;font-family:var(--sans)}
+.nav-link:hover{background:#555;color:white}
+.nav-spacer{flex:1}
+.page{max-width:680px;margin:0 auto;padding:40px 36px 60px;animation:fadeUp .3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.masthead{border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);padding:18px 0 14px;margin-bottom:24px;display:flex;align-items:flex-end;justify-content:space-between}
+.brand-eye{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#888;margin-bottom:5px}
+.brand-name{font-family:var(--serif);font-size:26px;font-weight:900;line-height:1}
+.brand-role{font-size:11px;color:#666;margin-top:5px;font-weight:300}
+.meta{text-align:right;font-family:var(--mono);font-size:10px;color:#888;line-height:1.9}
+.meta strong{display:block;font-size:12px;color:var(--ink);font-family:var(--sans)}
+.kpi-band{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--ink);border:1px solid var(--ink);margin-bottom:24px}
+.kpi{background:var(--paper);padding:15px 14px 13px}
+.kpi.dark{background:var(--ink);color:white}
+.kpi.green{background:var(--green);color:white}
+.kpi-label{font-size:8px;font-weight:500;letter-spacing:2px;text-transform:uppercase;opacity:.6;margin-bottom:4px}
+.kpi-value{font-family:var(--serif);font-size:22px;line-height:1;letter-spacing:-1px}
+.kpi-sub{font-family:var(--mono);font-size:9.5px;margin-top:3px;opacity:.65}
+.sec{display:flex;align-items:center;gap:10px;margin:22px 0 9px}
+.sec-n{font-family:var(--serif);font-size:11px;width:22px;height:22px;border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0}
+.sec-t{font-size:9.5px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase}
+.sec-r{flex:1;height:1px;background:var(--rule)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl thead tr{border-bottom:1.5px solid var(--ink)}
+.tbl thead th{font-size:8.5px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#888;padding:4px 9px 6px;text-align:left}
+.tbl thead th:not(:first-child){text-align:right}
+.tbl tbody tr{border-bottom:1px solid var(--cream)}
+.tbl tbody td{padding:7px 9px}
+.tbl tbody td:not(:first-child){text-align:right;font-family:var(--mono);font-size:11.5px}
+.tbl .total td{background:var(--ink);color:white;font-weight:700;border-top:1.5px solid var(--ink)}
+.tbl .total td:first-child{font-family:var(--sans)}
+.hist-tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.hist-tbl thead tr{border-bottom:1.5px solid var(--ink)}
+.hist-tbl thead th{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#888;padding:4px 8px 5px;text-align:left}
+.hist-tbl thead th:not(:first-child){text-align:right}
+.hist-tbl tbody tr{border-bottom:1px solid var(--cream)}
+.hist-tbl tbody td{padding:8px 8px}
+.hist-tbl tbody td:not(:first-child){text-align:right;font-family:var(--mono);font-size:11px}
+.hist-tbl .current td{font-weight:700;color:var(--green)}
+.milestone{background:var(--ink);color:white;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-top:16px}
+.ms-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:.5;margin-bottom:3px}
+.ms-val{font-family:var(--serif);font-size:18px;font-weight:900}
+.ms-badge{background:var(--green);color:white;font-size:10px;font-weight:700;padding:4px 10px;letter-spacing:1px}
+.thank-box{background:var(--green-lt);border:1px solid var(--green);border-left:3px solid var(--green);padding:16px;margin-top:16px;text-align:center}
+.thank-icon{font-size:28px;margin-bottom:8px}
+.thank-text{font-size:12px;color:var(--green);line-height:1.7}
+.folio{margin-top:36px;padding-top:10px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;font-size:9px;color:#bbb;font-family:var(--mono)}
+.acc{border:1px solid var(--rule);margin-top:8px;overflow:hidden}
+.acc-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--gray);border:none;cursor:pointer;font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#666;transition:background .2s}
+.acc-btn:hover{background:#e4e0d6}
+.acc-arrow{transition:transform .25s;font-size:10px}
+.acc-btn.open .acc-arrow{transform:rotate(180deg)}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.acc-body.open{max-height:600px}
+.acc-inner{padding:14px 14px 16px}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="nav-brand">三明治自己來</div>
+  <div class="nav-spacer"></div>
+  <a class="nav-link" href="https://je85ss85.github.io/sandwich-FSR/" target="_blank">↗ 月度財報</a>
+</nav>
+
+<div class="page">
+<div class="masthead">
+  <div><div class="brand-eye">勞務報酬明細（承攬）</div><div class="brand-name">小幫手</div><div class="brand-role">🤝 揀貨協助・出貨整理</div></div>
+  <div class="meta"><strong>2026年4月</strong>發放日：4月13日<br>感謝你每次的協助！</div>
+</div>
+
+<div class="kpi-band">
+  <div class="kpi dark"><div class="kpi-label">應發總計</div><div class="kpi-value">$6,000</div><div class="kpi-sub">本期發放</div></div>
+  <div class="kpi"><div class="kpi-label">固定底薪</div><div class="kpi-value">$6,000</div><div class="kpi-sub">月固定</div></div>
+  <div class="kpi"><div class="kpi-label">感謝金</div><div class="kpi-value">$0</div><div class="kpi-sub">營收未達$500k</div></div>
+</div>
+
+<div class="sec"><div class="sec-n">一</div><div class="sec-t">本月薪資明細</div><div class="sec-r"></div></div>
+<table class="tbl">
+  <thead><tr><th>項目</th><th>金額</th><th>說明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>固定底薪</strong></td><td>$6,000</td><td>月固定，感謝每次協助</td></tr>
+    <tr><td>感謝金</td><td>$0</td><td>月營收達 $500,000 時額外 +$500</td></tr>
+    <tr class="total"><td>應發總計</td><td>$6,000</td><td>本期實發</td></tr>
+  </tbody>
+</table>
+
+<div class="milestone">
+  <div><div class="ms-label">感謝金觸發條件</div><div class="ms-val">月營收 $500,000</div></div>
+  <div style="flex:1;margin:0 20px"><div style="height:6px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden"><div style="height:100%;width:94.5%;background:var(--green);border-radius:3px"></div></div><div style="font-family:var(--mono);font-size:9px;opacity:.5;margin-top:3px;text-align:right">$472,425 / $500,000　差 $27,575</div></div>
+  <div class="ms-badge">達成 +$500</div>
+</div>
+
+<div class="sec" style="margin-top:20px"><div class="sec-n">二</div><div class="sec-t">薪資歷史</div><div class="sec-r"></div></div>
+<div class="acc">
+  <button class="acc-btn" onclick="toggleAcc(this)"><span>展開歷史紀錄</span><span class="acc-arrow">▼</span></button>
+  <div class="acc-body"><div class="acc-inner">
+    <table class="hist-tbl">
+      <thead><tr><th>月份</th><th>固定底薪</th><th>感謝金</th><th>應發</th></tr></thead>
+      <tbody>
+        <tr><td>2026年3月</td><td>$6,000</td><td>$0</td><td>$6,000</td></tr>
+        <tr class="current"><td>2026年4月 ▶</td><td>$6,000</td><td>$0</td><td><strong>$6,000</strong></td></tr>
+      </tbody>
+    </table>
+  </div></div>
+</div>
+
+<div class="thank-box">
+  <div class="thank-icon">🙏</div>
+  <div class="thank-text">
+    感謝你每次出現都全力協助揀貨整理。<br>
+    你的支援讓每次出貨都能更順利完成。<br>
+    <strong>公司越來越好，一起往 $500,000 衝！</strong>
+  </div>
+</div>
+
+
+<style id="slip-style">
+.slip-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:var(--ink);color:white;border:none;cursor:pointer;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:20px;transition:background .2s}
+.slip-btn:hover{background:var(--green)}
+#slip-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9000}
+#slip-modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;z-index:9999;padding:40px 44px;width:520px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.slip-close-btn{position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;font-size:18px;color:#999;line-height:1}
+.slip-close-btn:hover{color:#333}
+.slip-co{font-size:15px;font-weight:700;margin-bottom:2px;font-family:var(--sans)}
+.slip-info{font-size:11px;color:#666;margin-bottom:14px;line-height:1.9}
+.slip-title{font-size:14px;font-weight:700;text-align:center;border-top:2px solid #000;border-bottom:2px solid #000;padding:7px 0;margin:12px 0;letter-spacing:2px;font-family:var(--sans)}
+.slip-sec{font-size:10px;font-weight:700;color:#777;letter-spacing:2px;text-transform:uppercase;margin:14px 0 5px}
+.slip-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted #e0e0e0;font-size:12.5px}
+.slip-row .lbl{color:#333}
+.slip-row .amt{font-family:monospace;font-weight:600}
+.slip-note{font-size:9.5px;color:#aaa;margin-left:6px}
+.slip-sub{display:flex;justify-content:space-between;padding:6px 0;font-weight:700;border-top:1.5px solid #333;margin-top:3px;font-size:13px}
+.slip-total{display:flex;justify-content:space-between;padding:8px 0;font-size:15px;font-weight:700;border-top:2px solid #000;border-bottom:2px solid #000;margin-top:3px;font-family:var(--sans)}
+.slip-footer{font-size:11px;color:#555;margin-top:16px;line-height:2}
+.slip-print-row{display:flex;gap:10px;margin-top:20px}
+.slip-print-btn{flex:1;padding:9px;background:#0f1923;color:white;border:none;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:1px}
+.slip-print-btn:hover{background:#2a4a6b}
+.slip-cancel-btn{padding:9px 16px;background:none;border:1px solid #ccc;cursor:pointer;font-size:11px;color:#666}
+@media print{
+  body>*:not(#slip-modal){display:none!important}
+  #slip-modal{display:block!important;position:static!important;transform:none!important;box-shadow:none!important;padding:20px!important;width:100%!important;max-height:none!important}
+  .slip-close-btn,.slip-print-row{display:none!important}
+  #slip-overlay{display:none!important}
+}
+</style>
+<button class="slip-btn" onclick="document.getElementById('slip-overlay').style.display='block';document.getElementById('slip-modal').style.display='block'">
+  🖨&nbsp;&nbsp;列印勞務報酬單
+</button>
+
+<div id="slip-overlay" onclick="closeSlip()"></div>
+<div id="slip-modal">
+  <button class="slip-close-btn" onclick="closeSlip()">✕</button>
+  <div class="slip-co">拾起百味有限公司</div>
+  <div class="slip-info">統一編號：60493910　｜　台中市東勢區102巷66號</div>
+  <div class="slip-title">2026年4月　勞務報酬單</div>
+  <div class="slip-info">
+    承攬人姓名：（待填）<br>
+    結算區間：2026年3月1日 ～ 3月31日<br>
+    發放日期：2026年4月13日
+  </div>
+
+  <div class="slip-sec">報酬項目</div>
+  <div class="slip-row"><span class="lbl">固定勞務報酬</span><span class="amt">$6,000</span></div>
+  <div class="slip-sub"><span>報酬合計</span><span>$6,000</span></div>
+
+  <div class="slip-total"><span>實際發給金額</span><span>$6,000</span></div>
+
+  <div class="slip-footer">委託方：拾起百味有限公司</div>
+  <div class="slip-print-row">
+    <button class="slip-print-btn" onclick="window.print()">🖨 列印 ／ 儲存 PDF</button>
+    <button class="slip-cancel-btn" onclick="closeSlip()">關閉</button>
+  </div>
+</div>
+<script>function closeSlip(){document.getElementById('slip-overlay').style.display='none';document.getElementById('slip-modal').style.display='none'}</script>
+
+
+<div class="folio"><span>三明治自己來 SANDWICH.STORE</span><span>小幫手 勞務報酬</span><span>2026.04</span></div>
+</div>
+
+<script>
+function toggleAcc(btn){const body=btn.nextElementSibling;body.classList.toggle('open');btn.classList.toggle('open');btn.querySelector('span:first-child').textContent=body.classList.contains('open')?'收起歷史紀錄':'展開歷史紀錄'}
+</script>
+</body>
+</html>
