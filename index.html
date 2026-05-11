@@ -127,64 +127,166 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:
 </div>
 
 
-<style id="slip-style">
-.slip-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:var(--ink);color:white;border:none;cursor:pointer;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:20px;transition:background .2s}
-.slip-btn:hover{background:var(--green)}
-#slip-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9000}
-#slip-modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;z-index:9999;padding:40px 44px;width:520px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-.slip-close-btn{position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;font-size:18px;color:#999;line-height:1}
-.slip-close-btn:hover{color:#333}
-.slip-co{font-size:15px;font-weight:700;margin-bottom:2px;font-family:var(--sans)}
-.slip-info{font-size:11px;color:#666;margin-bottom:14px;line-height:1.9}
-.slip-title{font-size:14px;font-weight:700;text-align:center;border-top:2px solid #000;border-bottom:2px solid #000;padding:7px 0;margin:12px 0;letter-spacing:2px;font-family:var(--sans)}
-.slip-sec{font-size:10px;font-weight:700;color:#777;letter-spacing:2px;text-transform:uppercase;margin:14px 0 5px}
-.slip-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted #e0e0e0;font-size:12.5px}
-.slip-row .lbl{color:#333}
-.slip-row .amt{font-family:monospace;font-weight:600}
-.slip-note{font-size:9.5px;color:#aaa;margin-left:6px}
-.slip-sub{display:flex;justify-content:space-between;padding:6px 0;font-weight:700;border-top:1.5px solid #333;margin-top:3px;font-size:13px}
-.slip-total{display:flex;justify-content:space-between;padding:8px 0;font-size:15px;font-weight:700;border-top:2px solid #000;border-bottom:2px solid #000;margin-top:3px;font-family:var(--sans)}
-.slip-footer{font-size:11px;color:#555;margin-top:16px;line-height:2}
-.slip-print-row{display:flex;gap:10px;margin-top:20px}
-.slip-print-btn{flex:1;padding:9px;background:#0f1923;color:white;border:none;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:1px}
-.slip-print-btn:hover{background:#2a4a6b}
-.slip-cancel-btn{padding:9px 16px;background:none;border:1px solid #ccc;cursor:pointer;font-size:11px;color:#666}
-@media print{
-  body>*:not(#slip-modal){display:none!important}
-  #slip-modal{display:block!important;position:static!important;transform:none!important;box-shadow:none!important;padding:20px!important;width:100%!important;max-height:none!important}
-  .slip-close-btn,.slip-print-row{display:none!important}
-  #slip-overlay{display:none!important}
+
+
+
+<!-- 引入下載工具 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+.dl-btn-wrap { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+.dl-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border: none; cursor: pointer;
+  font-family: var(--sans); font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; transition: all .2s;
 }
+.dl-btn.view  { background: var(--ink); color: white; }
+.dl-btn.view:hover { background: var(--green); }
+.dl-overlay {
+  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.6); z-index: 9000; align-items: center; justify-content: center;
+}
+.dl-overlay.show { display: flex; }
+.dl-modal {
+  background: white; padding: 32px 36px; width: 520px; max-width: 95vw;
+  max-height: 92vh; overflow-y: auto; position: relative;
+  box-shadow: 0 24px 64px rgba(0,0,0,.35);
+}
+.dl-close {
+  position: absolute; top: 12px; right: 16px; background: none; border: none;
+  cursor: pointer; font-size: 20px; color: #aaa; line-height: 1;
+}
+.dl-close:hover { color: #333; }
+/* 薪資單本體樣式 */
+#SLIP_ID {
+  font-family: 'Noto Sans TC', 'Hiragino Sans', sans-serif;
+  font-size: 12.5px; line-height: 1.8; color: #0f1923;
+}
+.s-co  { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.s-addr{ font-size: 10px; color: #666; margin-bottom: 14px; }
+.s-title{
+  font-size: 15px; font-weight: 700; text-align: center; letter-spacing: 3px;
+  border-top: 2px solid #0f1923; border-bottom: 2px solid #0f1923;
+  padding: 7px 0; margin: 10px 0;
+}
+.s-meta { font-size: 10.5px; color: #555; margin-bottom: 12px; line-height: 2; }
+.s-sec  { font-size: 10px; font-weight: 700; color: #888; letter-spacing: 2px;
+           text-transform: uppercase; margin: 12px 0 5px; }
+.s-row  {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 0; border-bottom: 1px dotted #ddd; font-size: 12px;
+}
+.s-row .s-lbl { color: #333; }
+.s-row .s-note{ font-size: 9.5px; color: #bbb; margin-left: 6px; }
+.s-row .s-amt { font-family: monospace; font-weight: 600; }
+.s-sub  {
+  display: flex; justify-content: space-between; padding: 5px 0;
+  font-weight: 700; border-top: 1.5px solid #333; font-size: 13px;
+}
+.s-total{
+  display: flex; justify-content: space-between; padding: 9px 8px;
+  font-size: 14px; font-weight: 700;
+  background: #0f1923; color: white; margin-top: 6px;
+}
+.s-foot { font-size: 10.5px; color: #666; margin-top: 14px; line-height: 2; }
+/* 下載按鈕區 */
+.dl-actions {
+  display: flex; gap: 10px; margin-top: 20px; padding-top: 14px;
+  border-top: 1px solid #eee;
+}
+.dl-action-btn {
+  flex: 1; padding: 10px; border: none; cursor: pointer;
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  font-family: 'Noto Sans TC', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.dl-action-btn.png { background: #1a3a6b; color: white; }
+.dl-action-btn.png:hover { background: #0d2040; }
+.dl-action-btn.pdf { background: #1a6b3a; color: white; }
+.dl-action-btn.pdf:hover { background: #0d4020; }
+.dl-action-btn.cls { background: none; border: 1px solid #ccc; color: #666; flex: 0 0 auto; padding: 10px 16px; }
+.dl-action-btn:disabled { opacity: .5; cursor: not-allowed; }
 </style>
-<button class="slip-btn" onclick="document.getElementById('slip-overlay').style.display='block';document.getElementById('slip-modal').style.display='block'">
-  🖨&nbsp;&nbsp;列印勞務報酬單
-</button>
 
-<div id="slip-overlay" onclick="closeSlip()"></div>
-<div id="slip-modal">
-  <button class="slip-close-btn" onclick="closeSlip()">✕</button>
-  <div class="slip-co">拾起百味有限公司</div>
-  <div class="slip-info">統一編號：60493910　｜　台中市東勢區102巷66號</div>
-  <div class="slip-title">2026年4月　勞務報酬單</div>
-  <div class="slip-info">
-    承攬人姓名：（待填）<br>
-    結算區間：2026年3月1日 ～ 3月31日<br>
-    發放日期：2026年4月13日
-  </div>
+<div class="dl-btn-wrap">
+  <button class="dl-btn view" onclick="openSlip('slip_helper')">
+    🖨 查看 ／ 下載勞務報酬單
+  </button>
+</div>
 
-  <div class="slip-sec">報酬項目</div>
-  <div class="slip-row"><span class="lbl">固定勞務報酬</span><span class="amt">$6,000</span></div>
-  <div class="slip-sub"><span>報酬合計</span><span>$6,000</span></div>
-
-  <div class="slip-total"><span>實際發給金額</span><span>$6,000</span></div>
-
-  <div class="slip-footer">委託方：拾起百味有限公司</div>
-  <div class="slip-print-row">
-    <button class="slip-print-btn" onclick="window.print()">🖨 列印 ／ 儲存 PDF</button>
-    <button class="slip-cancel-btn" onclick="closeSlip()">關閉</button>
+<div class="dl-overlay" id="overlay_slip_helper" onclick="if(event.target===this)closeSlip('slip_helper')">
+  <div class="dl-modal">
+    <button class="dl-close" onclick="closeSlip('slip_helper')">✕</button>
+    <div id="slip_helper">
+<div class="s-co">拾起百味有限公司</div>
+<div class="s-addr">統一編號：60493910　｜　台中市東勢區102巷66號</div>
+<div class="s-title">2026年4月　勞務報酬單</div>
+<div class="s-meta">
+承攬人姓名：（待填）<br>
+結算區間：2026年3月1日 ～ 3月31日　｜　發放日期：2026年4月13日
+</div>
+<div class="s-sec">報酬項目</div>
+<div class="s-row"><span class="s-lbl">固定勞務報酬</span><span class="s-amt">$6,000</span></div>
+<div class="s-sub"><span>報酬合計</span><span>$6,000</span></div>
+<div class="s-total"><span>實際發給金額</span><span>$6,000</span></div>
+<div class="s-foot">委託方：拾起百味有限公司</div></div>
+    <div class="dl-actions">
+      <button class="dl-action-btn png" id="png_slip_helper" onclick="downloadPNG('slip_helper','勞務報酬單_小幫手_202604')">
+        ⬇ 下載 PNG 圖片
+      </button>
+      <button class="dl-action-btn pdf" id="pdf_slip_helper" onclick="downloadPDF('slip_helper','勞務報酬單_小幫手_202604')">
+        ⬇ 下載 PDF
+      </button>
+      <button class="dl-action-btn cls" onclick="closeSlip('slip_helper')">關閉</button>
+    </div>
   </div>
 </div>
-<script>function closeSlip(){document.getElementById('slip-overlay').style.display='none';document.getElementById('slip-modal').style.display='none'}</script>
+
+<script>
+function openSlip(id) {
+  document.getElementById('overlay_' + id).classList.add('show');
+}
+function closeSlip(id) {
+  document.getElementById('overlay_' + id).classList.remove('show');
+}
+async function downloadPNG(id, filename) {
+  const btn = document.getElementById('png_' + id);
+  btn.disabled = true; btn.textContent = '截圖中...';
+  try {
+    const el = document.getElementById(id);
+    const canvas = await html2canvas(el, {
+      scale: 2, backgroundColor: '#ffffff',
+      useCORS: true, logging: false
+    });
+    const a = document.createElement('a');
+    a.download = filename + '.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  } catch(e) { alert('下載失敗，請嘗試PDF格式'); }
+  btn.disabled = false; btn.innerHTML = '⬇ 下載 PNG 圖片';
+}
+async function downloadPDF(id, filename) {
+  const btn = document.getElementById('pdf_' + id);
+  btn.disabled = true; btn.textContent = '生成中...';
+  try {
+    const el = document.getElementById(id);
+    const canvas = await html2canvas(el, {
+      scale: 2, backgroundColor: '#ffffff',
+      useCORS: true, logging: false
+    });
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = (canvas.height * pdfW) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+    pdf.save(filename + '.pdf');
+  } catch(e) { alert('下載失敗，請嘗試PNG格式'); }
+  btn.disabled = false; btn.innerHTML = '⬇ 下載 PDF';
+}
+</script>
 
 
 <div class="folio"><span>三明治自己來 SANDWICH.STORE</span><span>小幫手 勞務報酬</span><span>2026.04</span></div>
